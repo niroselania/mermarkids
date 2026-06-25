@@ -5,3 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "${APP_PORT:-8088}:80"
+    volumes:
+      - mermarkids_data:/data
+
+volumes:
+  mermarkids_data:

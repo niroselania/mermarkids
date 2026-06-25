@@ -3,4 +3,6 @@
 .codex
 work
 outputs
+app
+data
 *.log

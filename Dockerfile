@@ -1,5 +1,14 @@
-FROM nginx:1.27-alpine
+FROM python:3.12-alpine
 
-COPY index.html /usr/share/nginx/html/index.html
+WORKDIR /app
+
+COPY index.html server.py ./
+
+ENV DATA_DIR=/data
+ENV PORT=80
+
+VOLUME ["/data"]
 
 EXPOSE 80
+
+CMD ["python", "server.py"]
