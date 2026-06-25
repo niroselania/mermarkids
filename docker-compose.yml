@@ -1,0 +1,7 @@
+services:
+  mermarkids:
+    build: .
+    container_name: mermarkids-ventas
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8088}:80"
