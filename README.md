@@ -2,6 +2,8 @@
 
 App web simple para cargar pedidos y gastos de MerMarKids en una sola pantalla.
 
+El archivo principal de la app es `index.html`.
+
 ## Funciones
 
 - Alta de pedidos con fecha del dia.
@@ -43,3 +45,5 @@ APP_PORT=8090 docker compose up -d --build
 8. Deploy the stack.
 
 Por defecto la app queda expuesta en el puerto `8088`.
+
+Si Portainer muestra un error tipo `"/app": not found`, el repo todavia tiene una version vieja del `Dockerfile` o no se subio el archivo `index.html` a la raiz.
