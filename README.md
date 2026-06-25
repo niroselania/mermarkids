@@ -26,7 +26,7 @@ docker compose up -d --build
 Luego abrir:
 
 ```text
-http://localhost:8088
+http://localhost:8015
 ```
 
 Para cambiar el puerto:
@@ -46,7 +46,7 @@ APP_PORT=8090 docker compose up -d --build
 7. Usar `docker-compose.yml` como compose path.
 8. Deploy the stack.
 
-Por defecto la app queda expuesta en el puerto `8088`.
+Por defecto la app queda expuesta en el puerto `8015`.
 
 Si Portainer muestra un error tipo `"/app": not found`, el repo todavia tiene una version vieja del `Dockerfile` o no se subio el archivo `index.html` a la raiz.
 
