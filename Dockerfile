@@ -2,8 +2,7 @@ FROM python:3.12-alpine
 
 WORKDIR /app
 
-COPY index.html server.py ./
-COPY assets/ ./assets/
+COPY . .
 
 ENV DATA_DIR=/data
 ENV PORT=80
