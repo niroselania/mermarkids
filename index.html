@@ -63,6 +63,7 @@
     .pill.mp { color: var(--mp); background: #edf4ff; }
     .pill.pending { color: var(--danger); background: #fff1f0; }
     .pill.ok { color: var(--brand); background: #ecfdf5; }
+    .row-actions { display: inline-flex; gap: 6px; align-items: center; }
     .empty, .message { padding: 14px; color: var(--muted); text-align: center; }
     .message { text-align: left; border-top: 1px solid var(--line); }
     .hidden { display: none; }
@@ -432,6 +433,45 @@
     function escapeHtml(value) {
       return String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
     }
+    function ticketLine(label, value) {
+      return `${label.padEnd(10, " ")}: ${value}`;
+    }
+    function paymentText(item) {
+      if (item.pending <= 0) return "Abonado total";
+      if (item.deposit > 0) return "Con seña";
+      return "Aun no pago";
+    }
+    function downloadOrderTicket(item) {
+      if (!item) return;
+      const separator = "-".repeat(34);
+      const productLines = String(item.product || "").split(/\r?\n/).map(line => `  ${line}`).join("\n");
+      const ticket = [
+        "          MERMARKIDS",
+        "       COMPROBANTE DE PEDIDO",
+        separator,
+        ticketLine("Orden", item.orderNumber),
+        ticketLine("Fecha", item.date),
+        ticketLine("Cliente", item.customer),
+        separator,
+        "Producto:",
+        productLines || "  -",
+        ticketLine("Cant.", item.quantity),
+        ticketLine("Precio", money.format(item.unitPrice)),
+        ticketLine("Total", money.format(item.total)),
+        separator,
+        ticketLine("Seña", money.format(item.deposit)),
+        ticketLine("Resta", money.format(item.pending)),
+        ticketLine("Pago", paymentText(item)),
+        separator,
+        "Gracias por tu compra"
+      ].join("\n");
+      const blob = new Blob([ticket], { type: "text/plain;charset=utf-8" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `comprobante_orden_${item.orderNumber}.txt`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
 
     function renderOrders() {
       els.ordersBody.innerHTML = state.orders.map(item => `
@@ -441,7 +481,7 @@
           <td class="money">${money.format(item.total)}</td><td class="money">${money.format(item.deposit)}</td>
           <td><span class="pill ${accountType(item.account)}">${escapeHtml(item.account)}</span></td>
           <td class="money">${money.format(item.pending)}</td><td>${paidLabel(item)}</td><td>${escapeHtml(item.orderStatus)}</td>
-          <td><button class="secondary" type="button" data-edit="${item.id}">Editar</button> <button class="danger" type="button" data-delete-orders="${item.id}">Borrar</button></td>
+          <td><div class="row-actions"><button class="secondary" type="button" data-edit="${item.id}">Editar</button><button class="secondary" type="button" data-download-order="${item.id}">Descargar</button><button class="danger" type="button" data-delete-orders="${item.id}">Borrar</button></div></td>
         </tr>`).join("");
       els.ordersEmpty.classList.toggle("hidden", state.orders.length > 0);
     }
@@ -516,9 +556,11 @@
     els.paidStatus.addEventListener("change", updateOrderPreview);
     document.addEventListener("click", event => {
       const editId = event.target.dataset.edit;
+      const downloadOrderId = event.target.dataset.downloadOrder;
       const orderId = event.target.dataset.deleteOrders;
       const expenseId = event.target.dataset.deleteExpenses;
       if (editId) fillOrderForm(state.orders.find(item => String(item.id) === String(editId)));
+      if (downloadOrderId) downloadOrderTicket(state.orders.find(item => String(item.id) === String(downloadOrderId)));
       if (orderId) deleteItem("orders", orderId);
       if (expenseId) deleteItem("expenses", expenseId);
     });
