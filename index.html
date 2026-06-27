@@ -498,11 +498,19 @@
     }
 
     function renderAccounts() {
-      const merExpense = state.expenses.reduce((sum, item) => sum + item.mer, 0) / 2;
-      const marianExpense = state.expenses.reduce((sum, item) => sum + item.marian, 0) / 2;
+      const expensesByAccount = Object.fromEntries(accounts.map(account => [account, 0]));
+      state.expenses.forEach(item => {
+        const people = item.account === "COMPARTIDO" ? ["MER", "MARIAN"] : [item.account];
+        const divisor = item.account === "COMPARTIDO" ? 2 : 1;
+        people.forEach(person => {
+          expensesByAccount[`${person} EF`] += number(item.cash) / divisor;
+          expensesByAccount[`${person} MP`] += number(item.mp) / divisor;
+        });
+      });
+
       els.accountsBody.innerHTML = accounts.map(account => {
         const paid = state.orders.filter(item => item.account === account).reduce((sum, item) => sum + item.deposit, 0);
-        const expenses = account.startsWith("MER") ? merExpense : marianExpense;
+        const expenses = expensesByAccount[account] || 0;
         return `<tr><td><span class="pill ${accountType(account)}">${account}</span></td><td class="money">${money.format(paid)}</td><td class="money">${money.format(expenses)}</td><td class="money">${money.format(paid - expenses)}</td></tr>`;
       }).join("");
     }
@@ -569,3 +577,4 @@
   </script>
 </body>
 </html>
+
